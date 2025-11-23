@@ -1,16 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { ViewState } from '../types';
+import { ViewState, Language } from '../types';
+import { getTranslation } from '../i18n';
 
 interface LayoutProps {
   children: React.ReactNode;
   currentView: ViewState;
   setView: (view: ViewState) => void;
+  lang: Language;
+  setLang: (lang: Language) => void;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, currentView, setView }) => {
+const Layout: React.FC<LayoutProps> = ({ children, currentView, setView, lang, setLang }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const t = (key: string) => getTranslation(lang, key);
 
   // Reading Progress Bar Logic
   useEffect(() => {
@@ -36,6 +41,20 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, setView }) => {
     }
   }, []);
 
+  // Language & Direction Logic
+  useEffect(() => {
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    if (lang === 'ar') {
+      document.body.classList.add('font-arabic');
+      document.body.classList.remove('font-sans');
+    } else {
+      document.body.classList.add('font-sans');
+      document.body.classList.remove('font-arabic');
+    }
+    localStorage.setItem('lang', lang);
+  }, [lang]);
+
   const toggleTheme = () => {
     if (isDarkMode) {
       document.documentElement.classList.remove('dark');
@@ -49,10 +68,23 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, setView }) => {
   };
 
   const navItems = [
-    { view: ViewState.HOME, label: 'Home' },
-    { view: ViewState.ABOUT, label: 'About Us' },
-    { view: ViewState.PRIVACY, label: 'Privacy' },
-    { view: ViewState.CONTACT, label: 'Contact' },
+    { view: ViewState.HOME, label: t('nav_home') },
+    { view: ViewState.ABOUT, label: t('nav_about') },
+    { view: ViewState.PRIVACY, label: t('nav_privacy') },
+    { view: ViewState.CONTACT, label: t('nav_contact') },
+  ];
+
+  const languages: { code: Language; label: string; flag: string }[] = [
+    { code: 'en', label: 'English', flag: '🇺🇸' },
+    { code: 'ar', label: 'العربية', flag: '🇸🇦' },
+    { code: 'fr', label: 'Français', flag: '🇫🇷' },
+    { code: 'es', label: 'Español', flag: '🇪🇸' },
+    { code: 'el', label: 'Ελληνικά', flag: '🇬🇷' },
+    { code: 'pt', label: 'Português', flag: '🇵🇹' },
+    { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
+    { code: 'zh', label: '中文 (简)', flag: '🇨🇳' },
+    { code: 'ja', label: '日本語', flag: '🇯🇵' },
+    { code: 'nl', label: 'Nederlands', flag: '🇳🇱' },
   ];
 
   return (
@@ -68,15 +100,25 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, setView }) => {
       {/* Header */}
       <header className="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-40">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+          
+          {/* Logo & Brand Name */}
           <div 
-            className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary cursor-pointer"
+            className="flex items-center gap-3 cursor-pointer group"
             onClick={() => setView(ViewState.HOME)}
           >
-            SmartTools
+            <div className="w-10 h-10 transition-transform duration-300 group-hover:scale-105">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" className="w-full h-full drop-shadow-sm">
+                <rect width="512" height="512" rx="100" className="fill-primary"/>
+                <path fill="white" d="M256 128c70.7 0 128 57.3 128 128s-57.3 128-128 128-128-57.3-128-128 57.3-128 128-128m0-40C163.2 88 88 163.2 88 256s75.2 168 168 168 168-75.2 168-168S348.8 88 256 88zM236 46h40v420h-40zM466 236v40H46v-40z"/>
+              </svg>
+            </div>
+            <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
+              SmartTools
+            </span>
           </div>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center space-x-6">
+          <nav className="hidden md:flex items-center space-x-6 rtl:space-x-reverse">
             {navItems.map((item) => (
               <button
                 key={item.view}
@@ -92,7 +134,25 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, setView }) => {
             ))}
           </nav>
 
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3 rtl:space-x-reverse">
+             {/* Language Dropdown */}
+            <div className="relative">
+              <select
+                value={lang}
+                onChange={(e) => setLang(e.target.value as Language)}
+                className="appearance-none bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 py-1 pl-3 pr-8 rounded leading-tight focus:outline-none focus:border-primary text-sm font-medium cursor-pointer"
+              >
+                {languages.map((l) => (
+                  <option key={l.code} value={l.code}>
+                     {l.flag} {l.label}
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300 rtl:right-auto rtl:left-0">
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+              </div>
+            </div>
+
             {/* Theme Toggle */}
             <button 
               onClick={toggleTheme}
@@ -156,7 +216,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, setView }) => {
       <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-8 mt-8">
         <div className="container mx-auto px-4 text-center">
           <p className="text-gray-500 dark:text-gray-400">
-            © {new Date().getFullYear()} All rights reserved - SmartTools
+            © {new Date().getFullYear()} {t('footer_rights')} - SmartTools
           </p>
         </div>
       </footer>

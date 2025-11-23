@@ -1,6 +1,10 @@
+
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { ViewState } from '../types';
 import AdPlaceholder from '../components/AdPlaceholder';
+import { getTranslation } from '../i18n';
+import { Language } from '../types';
+import { timeZones } from '../data/timezones';
 
 // --- Helpers ---
 const downloadContent = (filename: string, content: string) => {
@@ -27,73 +31,99 @@ interface ToolWrapperProps {
   children: React.ReactNode;
   goBack: () => void;
   onDownload?: () => void;
-  ltr?: boolean; 
+  lang: Language;
 }
 
-const ToolWrapper: React.FC<ToolWrapperProps> = ({ title, children, goBack, onDownload }) => (
-  <div className="max-w-3xl mx-auto animate-fade-in">
-    <button 
-      onClick={goBack}
-      className="mb-6 flex items-center text-gray-500 hover:text-primary transition-colors"
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-        <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
-      </svg>
-      Back to Tools
-    </button>
-    
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 md:p-8">
-      <div className="flex justify-between items-center mb-6 border-b pb-4 border-gray-200 dark:border-gray-700 flex-wrap gap-4">
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">
-          {title}
-        </h2>
-      </div>
+const ToolWrapper: React.FC<ToolWrapperProps> = ({ title, children, goBack, onDownload, lang }) => {
+  const t = (key: string) => getTranslation(lang, key);
+  const isRtl = lang === 'ar';
 
-      {/* Top Ad Unit inside Tool Wrapper */}
-      <AdPlaceholder />
-      <div className="mb-6">
-        {children}
-      </div>
-
-      {onDownload && (
-        <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 flex justify-end">
-          <button 
-            onClick={onDownload}
-            className="flex items-center justify-center gap-2 bg-primary hover:bg-blue-600 text-white px-6 py-3 rounded-lg transition-colors text-base font-medium shadow-sm w-full md:w-auto"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-            </svg>
-            Download Result
-          </button>
+  return (
+    <div className="max-w-3xl mx-auto animate-fade-in">
+      <button 
+        onClick={goBack}
+        className="mb-6 flex items-center text-gray-500 hover:text-primary transition-colors"
+      >
+        {isRtl ? (
+           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2 transform rotate-180" viewBox="0 0 20 20" fill="currentColor">
+             <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+           </svg>
+        ) : (
+           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+             <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+           </svg>
+        )}
+        {t('back_to_tools')}
+      </button>
+      
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 md:p-8">
+        <div className="flex justify-between items-center mb-6 border-b pb-4 border-gray-200 dark:border-gray-700 flex-wrap gap-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">
+            {title}
+          </h2>
         </div>
-      )}
+
+        {/* Top Ad Unit inside Tool Wrapper */}
+        <div className="mb-6">
+            <AdPlaceholder />
+        </div>
+
+        <div className="mb-6">
+          {children}
+        </div>
+
+        {/* Bottom Download Button Section */}
+        {onDownload && (
+          <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 flex justify-end">
+            <button 
+              onClick={onDownload}
+              className="flex items-center justify-center gap-2 bg-primary hover:bg-blue-600 text-white px-6 py-3 rounded-lg transition-colors text-base font-medium shadow-sm w-full md:w-auto"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+              </svg>
+              {t('download_result')}
+            </button>
+          </div>
+        )}
+      </div>
+      
+      {/* Bottom Ad Unit outside Tool Wrapper */}
+      <div className="mt-6">
+        <AdPlaceholder />
+      </div>
     </div>
-    {/* Bottom Ad Unit outside Tool Wrapper */}
-    <AdPlaceholder />
-  </div>
-);
+  );
+};
 
 // Helper component for the "Blog Post" section
-const ToolInfo: React.FC<{ title: string, desc: string, steps: string[] }> = ({ title, desc, steps }) => (
+const ToolInfo: React.FC<{ title: string, desc: string, steps: string[], lang: Language }> = ({ title, desc, steps, lang }) => (
   <div className="mb-8 border-b border-gray-200 dark:border-gray-700 pb-8">
-    <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-3">About {title}</h3>
+    <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-3">{title}</h3>
     <p className="text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
       {desc}
     </p>
-    <h4 className="font-medium text-gray-900 dark:text-white mb-2">How to use:</h4>
-    <ol className="list-decimal list-inside space-y-1 text-gray-600 dark:text-gray-400 ml-1">
+    <h4 className="font-medium text-gray-900 dark:text-white mb-2">
+       {lang === 'ar' ? 'كيفية الاستخدام:' : 'How to use:'}
+    </h4>
+    <ol className="list-decimal list-inside space-y-1 text-gray-600 dark:text-gray-400 ml-1 rtl:ml-0 rtl:mr-1">
       {steps.map((s, i) => <li key={i}>{s}</li>)}
     </ol>
   </div>
 );
 
+interface ToolProps {
+  goBack: () => void;
+  lang: Language;
+}
+
 // --- 1. Password Generator ---
-export const PasswordGenerator: React.FC<{goBack: () => void}> = ({ goBack }) => {
+export const PasswordGenerator: React.FC<ToolProps> = ({ goBack, lang }) => {
   const [length, setLength] = useState(12);
   const [includeNumbers, setIncludeNumbers] = useState(true);
   const [includeSymbols, setIncludeSymbols] = useState(true);
   const [password, setPassword] = useState('');
+  const t = (key: string) => getTranslation(lang, key);
 
   const generate = () => {
     const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -113,19 +143,16 @@ export const PasswordGenerator: React.FC<{goBack: () => void}> = ({ goBack }) =>
 
   return (
     <ToolWrapper 
-      title="Password Generator" 
+      title={t('tool_password')} 
       goBack={goBack}
+      lang={lang}
       onDownload={() => password && downloadContent('password.txt', password)}
     >
       <ToolInfo 
-        title="Password Generator"
-        desc="A strong, random password is the best defense against cyber threats. This tool creates secure passwords locally on your device using a combination of letters, numbers, and symbols, ensuring no data ever leaves your browser."
-        steps={[
-          "Select your desired password length using the slider (12+ recommended).",
-          "Toggle 'Numbers' and 'Symbols' based on your requirements.",
-          "Click 'Generate Password' to create a new secure string.",
-          "Copy the result for use in your accounts."
-        ]}
+        title={t('tool_password')}
+        desc={t('info_desc_password')}
+        steps={t('info_steps_password').split('|')}
+        lang={lang}
       />
       <div className="space-y-6">
         <div className="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg text-center">
@@ -133,7 +160,7 @@ export const PasswordGenerator: React.FC<{goBack: () => void}> = ({ goBack }) =>
             type="text" 
             readOnly 
             value={password} 
-            placeholder="Click generate..."
+            placeholder={lang === 'ar' ? 'انقر للتوليد...' : 'Click generate...'}
             className="bg-transparent text-2xl font-mono text-center w-full outline-none text-gray-800 dark:text-white"
           />
         </div>
@@ -159,7 +186,7 @@ export const PasswordGenerator: React.FC<{goBack: () => void}> = ({ goBack }) =>
                 onChange={(e) => setIncludeNumbers(e.target.checked)}
                 className="w-4 h-4 text-primary rounded border-gray-300 focus:ring-primary"
               />
-              <span className="text-gray-700 dark:text-gray-300">Numbers</span>
+              <span className="text-gray-700 dark:text-gray-300">0-9</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
               <input 
@@ -168,7 +195,7 @@ export const PasswordGenerator: React.FC<{goBack: () => void}> = ({ goBack }) =>
                 onChange={(e) => setIncludeSymbols(e.target.checked)}
                 className="w-4 h-4 text-primary rounded border-gray-300 focus:ring-primary"
               />
-              <span className="text-gray-700 dark:text-gray-300">Symbols</span>
+              <span className="text-gray-700 dark:text-gray-300">!@#</span>
             </label>
           </div>
         </div>
@@ -177,7 +204,7 @@ export const PasswordGenerator: React.FC<{goBack: () => void}> = ({ goBack }) =>
           onClick={generate}
           className="w-full bg-primary hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg transition-colors"
         >
-          Generate Password
+          {t('generate')}
         </button>
       </div>
     </ToolWrapper>
@@ -185,8 +212,9 @@ export const PasswordGenerator: React.FC<{goBack: () => void}> = ({ goBack }) =>
 };
 
 // --- 2. Word & Char Counter ---
-export const WordCounter: React.FC<{goBack: () => void}> = ({ goBack }) => {
+export const WordCounter: React.FC<ToolProps> = ({ goBack, lang }) => {
   const [text, setText] = useState('');
+  const t = (key: string) => getTranslation(lang, key);
   
   const stats = useMemo(() => {
     const chars = text.length;
@@ -196,34 +224,32 @@ export const WordCounter: React.FC<{goBack: () => void}> = ({ goBack }) => {
 
   return (
     <ToolWrapper 
-      title="Word & Character Counter" 
+      title={t('tool_counter')}
       goBack={goBack}
-      onDownload={() => downloadContent('word-count-report.txt', `Text Analysis Report\n-------------------\nWords: ${stats.words}\nCharacters: ${stats.chars}\n\nContent:\n${text}`)}
+      lang={lang}
+      onDownload={() => downloadContent('word-count-report.txt', `Report\nWords: ${stats.words}\nCharacters: ${stats.chars}\n\n${text}`)}
     >
       <ToolInfo 
-        title="Word & Character Counter"
-        desc="Writers, students, and professionals often need to adhere to specific character limits for essays, tweets, or meta descriptions. This tool counts words and characters instantly as you type, helping you manage content length."
-        steps={[
-          "Type or paste your text into the large text area.",
-          "View the 'Words' count updating in real-time below the box.",
-          "View the 'Characters' count (including spaces) next to it."
-        ]}
+        title={t('tool_counter')}
+        desc={t('info_desc_counter')}
+        steps={t('info_steps_counter').split('|')}
+        lang={lang}
       />
       <div className="space-y-4">
         <textarea
           className="w-full h-48 p-4 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
-          placeholder="Type or paste your text here..."
+          placeholder="..."
           value={text}
           onChange={(e) => setText(e.target.value)}
         />
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg text-center">
             <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">{stats.words}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Words</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">{lang === 'ar' ? 'كلمات' : 'Words'}</div>
           </div>
           <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg text-center">
             <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">{stats.chars}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Characters</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">{lang === 'ar' ? 'أحرف' : 'Chars'}</div>
           </div>
         </div>
       </div>
@@ -232,11 +258,12 @@ export const WordCounter: React.FC<{goBack: () => void}> = ({ goBack }) => {
 };
 
 // --- 3. Unit Converter ---
-export const UnitConverter: React.FC<{goBack: () => void}> = ({ goBack }) => {
+export const UnitConverter: React.FC<ToolProps> = ({ goBack, lang }) => {
   const [val, setVal] = useState<string>('');
   const [from, setFrom] = useState('MB');
   const [to, setTo] = useState('KB');
   const [result, setResult] = useState<string>('---');
+  const t = (key: string) => getTranslation(lang, key);
 
   const units: Record<string, number> = {
     'B': 1,
@@ -259,23 +286,20 @@ export const UnitConverter: React.FC<{goBack: () => void}> = ({ goBack }) => {
 
   return (
     <ToolWrapper 
-      title="Data Unit Converter" 
+      title={t('tool_unit')}
       goBack={goBack}
+      lang={lang}
       onDownload={() => downloadContent('conversion.txt', `${val} ${from} = ${result} ${to}`)}
     >
       <ToolInfo 
-        title="Data Unit Converter"
-        desc="Computing storage units can be confusing. This tool allows you to easily convert between Bytes, Kilobytes, Megabytes, Gigabytes, and Terabytes, making it essential for understanding file sizes and disk space management."
-        steps={[
-          "Enter the numeric value you want to convert in the 'Value' field.",
-          "Select the current unit from the 'From' dropdown menu.",
-          "Select the target unit from the 'To' dropdown menu.",
-          "Read the calculated result displayed prominently below."
-        ]}
+        title={t('tool_unit')}
+        desc={t('info_desc_unit')}
+        steps={t('info_steps_unit').split('|')}
+        lang={lang}
       />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
         <div>
-          <label className="block text-sm mb-1 text-gray-700 dark:text-gray-300">Value</label>
+          <label className="block text-sm mb-1 text-gray-700 dark:text-gray-300">{lang === 'ar' ? 'القيمة' : 'Value'}</label>
           <input 
             type="number" 
             value={val} 
@@ -284,7 +308,7 @@ export const UnitConverter: React.FC<{goBack: () => void}> = ({ goBack }) => {
           />
         </div>
         <div>
-          <label className="block text-sm mb-1 text-gray-700 dark:text-gray-300">From</label>
+          <label className="block text-sm mb-1 text-gray-700 dark:text-gray-300">{lang === 'ar' ? 'من' : 'From'}</label>
           <select 
             value={from} 
             onChange={(e) => setFrom(e.target.value)}
@@ -294,7 +318,7 @@ export const UnitConverter: React.FC<{goBack: () => void}> = ({ goBack }) => {
           </select>
         </div>
         <div>
-          <label className="block text-sm mb-1 text-gray-700 dark:text-gray-300">To</label>
+          <label className="block text-sm mb-1 text-gray-700 dark:text-gray-300">{lang === 'ar' ? 'إلى' : 'To'}</label>
           <select 
             value={to} 
             onChange={(e) => setTo(e.target.value)}
@@ -305,7 +329,7 @@ export const UnitConverter: React.FC<{goBack: () => void}> = ({ goBack }) => {
         </div>
       </div>
       <div className="mt-8 text-center p-6 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-        <span className="text-gray-500 dark:text-gray-400">Result:</span>
+        <span className="text-gray-500 dark:text-gray-400">{lang === 'ar' ? 'النتيجة' : 'Result'}:</span>
         <div className="text-3xl font-bold text-primary mt-2 break-all">
           {result} {to}
         </div>
@@ -315,12 +339,13 @@ export const UnitConverter: React.FC<{goBack: () => void}> = ({ goBack }) => {
 };
 
 // --- 4. Base Converter ---
-export const BaseConverter: React.FC<{goBack: () => void}> = ({ goBack }) => {
+export const BaseConverter: React.FC<ToolProps> = ({ goBack, lang }) => {
   const [number, setNumber] = useState('');
   const [fromBase, setFromBase] = useState(10);
   const [toBase, setToBase] = useState(2);
   const [result, setResult] = useState('');
   const [error, setError] = useState('');
+  const t = (key: string) => getTranslation(lang, key);
 
   useEffect(() => {
     if (!number) {
@@ -331,75 +356,71 @@ export const BaseConverter: React.FC<{goBack: () => void}> = ({ goBack }) => {
     try {
       const val = parseInt(number, fromBase);
       if (isNaN(val)) {
-        setError('Invalid number for this base');
+        setError('Invalid');
         setResult('');
       } else {
         setResult(val.toString(toBase).toUpperCase());
         setError('');
       }
     } catch (e) {
-      setError('Conversion error');
+      setError('Error');
     }
   }, [number, fromBase, toBase]);
 
   return (
     <ToolWrapper 
-      title="Number Base Converter" 
+      title={t('tool_base')}
       goBack={goBack}
-      onDownload={() => downloadContent('base-conversion.txt', `${number} (Base ${fromBase}) = ${result} (Base ${toBase})`)}
+      lang={lang}
+      onDownload={() => downloadContent('base-conversion.txt', `${number} (${fromBase}) = ${result} (${toBase})`)}
     >
       <ToolInfo 
-        title="Number Base Converter"
-        desc="Computer science relies on different number systems. This utility helps developers and students convert numbers accurately between Binary (Base 2), Octal (Base 8), Decimal (Base 10), and Hexadecimal (Base 16)."
-        steps={[
-          "Enter the number you wish to convert in the input field.",
-          "Select the base of your input number (e.g., Decimal) from 'From Base'.",
-          "Select the base you want to convert to (e.g., Binary) from 'To Base'.",
-          "The converted result appears instantly in the box below."
-        ]}
+        title={t('tool_base')}
+        desc={t('info_desc_base')}
+        steps={t('info_steps_base').split('|')}
+        lang={lang}
       />
       <div className="space-y-4">
         <div>
-          <label className="block text-sm mb-1 text-gray-700 dark:text-gray-300">Number</label>
+          <label className="block text-sm mb-1 text-gray-700 dark:text-gray-300">{lang === 'ar' ? 'الرقم' : 'Number'}</label>
           <input 
             type="text" 
             value={number}
             onChange={(e) => setNumber(e.target.value)}
-            placeholder="Enter number..."
             className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white font-mono"
           />
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-             <label className="block text-sm mb-1 text-gray-700 dark:text-gray-300">From Base</label>
+             <label className="block text-sm mb-1 text-gray-700 dark:text-gray-300">{lang === 'ar' ? 'من قاعدة' : 'From Base'}</label>
              <select 
                value={fromBase} 
                onChange={(e) => setFromBase(Number(e.target.value))}
                className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
              >
-               <option value={2}>Binary (2)</option>
-               <option value={8}>Octal (8)</option>
-               <option value={10}>Decimal (10)</option>
-               <option value={16}>Hex (16)</option>
+               <option value={2}>2 (Binary)</option>
+               <option value={8}>8 (Octal)</option>
+               <option value={10}>10 (Decimal)</option>
+               <option value={16}>16 (Hex)</option>
              </select>
           </div>
           <div>
-             <label className="block text-sm mb-1 text-gray-700 dark:text-gray-300">To Base</label>
+             <label className="block text-sm mb-1 text-gray-700 dark:text-gray-300">{lang === 'ar' ? 'إلى قاعدة' : 'To Base'}</label>
              <select 
                value={toBase} 
                onChange={(e) => setToBase(Number(e.target.value))}
                className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
              >
-               <option value={2}>Binary (2)</option>
-               <option value={8}>Octal (8)</option>
-               <option value={10}>Decimal (10)</option>
-               <option value={16}>Hex (16)</option>
+               <option value={2}>2 (Binary)</option>
+               <option value={8}>8 (Octal)</option>
+               <option value={10}>10 (Decimal)</option>
+               <option value={16}>16 (Hex)</option>
              </select>
           </div>
         </div>
         {error && <p className="text-red-500 text-sm">{error}</p>}
         <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg text-center">
-          <span className="text-gray-500">Result:</span>
+          <span className="text-gray-500">{lang === 'ar' ? 'النتيجة' : 'Result'}:</span>
           <div className="text-2xl font-mono font-bold mt-1 break-all">{result || '---'}</div>
         </div>
       </div>
@@ -408,9 +429,10 @@ export const BaseConverter: React.FC<{goBack: () => void}> = ({ goBack }) => {
 };
 
 // --- 5. Discount Calculator ---
-export const DiscountCalculator: React.FC<{goBack: () => void}> = ({ goBack }) => {
+export const DiscountCalculator: React.FC<ToolProps> = ({ goBack, lang }) => {
   const [price, setPrice] = useState<string>('');
   const [discount, setDiscount] = useState<string>('');
+  const t = (key: string) => getTranslation(lang, key);
 
   const p = parseFloat(price) || 0;
   const d = parseFloat(discount) || 0;
@@ -419,23 +441,20 @@ export const DiscountCalculator: React.FC<{goBack: () => void}> = ({ goBack }) =
 
   return (
     <ToolWrapper 
-      title="Discount Calculator" 
+      title={t('tool_discount')}
       goBack={goBack}
-      onDownload={() => downloadContent('discount-calc.txt', `Original Price: ${p}\nDiscount: ${d}%\n\nYou Save: ${saving.toFixed(2)}\nFinal Price: ${final.toFixed(2)}`)}
+      lang={lang}
+      onDownload={() => downloadContent('discount.txt', `Price: ${p}\nDiscount: ${d}%\nFinal: ${final.toFixed(2)}`)}
     >
       <ToolInfo 
-        title="Discount Calculator"
-        desc="Shopping sales? Quickly calculate the final price of an item after applying a percentage discount and see exactly how much cash you are saving. Useful for Black Friday or seasonal sales."
-        steps={[
-          "Enter the original price of the product.",
-          "Enter the discount percentage offered.",
-          "View the 'Price After Discount' to see what you will pay.",
-          "Check the 'You Save' amount to see the total reduction."
-        ]}
+        title={t('tool_discount')}
+        desc={t('info_desc_discount')}
+        steps={t('info_steps_discount').split('|')}
+        lang={lang}
       />
       <div className="grid grid-cols-2 gap-4 mb-6">
         <div>
-          <label className="block text-sm mb-1 text-gray-700 dark:text-gray-300">Original Price</label>
+          <label className="block text-sm mb-1 text-gray-700 dark:text-gray-300">{lang === 'ar' ? 'السعر الأصلي' : 'Original Price'}</label>
           <input 
             type="number" 
             value={price}
@@ -444,7 +463,7 @@ export const DiscountCalculator: React.FC<{goBack: () => void}> = ({ goBack }) =
           />
         </div>
         <div>
-          <label className="block text-sm mb-1 text-gray-700 dark:text-gray-300">Discount (%)</label>
+          <label className="block text-sm mb-1 text-gray-700 dark:text-gray-300">{lang === 'ar' ? 'الخصم (%)' : 'Discount (%)'}</label>
           <input 
             type="number" 
             value={discount}
@@ -455,11 +474,11 @@ export const DiscountCalculator: React.FC<{goBack: () => void}> = ({ goBack }) =
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg text-center">
-          <div className="text-sm text-green-700 dark:text-green-400">Price After Discount</div>
+          <div className="text-sm text-green-700 dark:text-green-400">{lang === 'ar' ? 'السعر النهائي' : 'Final Price'}</div>
           <div className="text-2xl font-bold text-green-700 dark:text-green-400">{final.toFixed(2)}</div>
         </div>
         <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg text-center">
-          <div className="text-sm text-red-700 dark:text-red-400">You Save</div>
+          <div className="text-sm text-red-700 dark:text-red-400">{lang === 'ar' ? 'أنت توفر' : 'You Save'}</div>
           <div className="text-2xl font-bold text-red-700 dark:text-red-400">{saving.toFixed(2)}</div>
         </div>
       </div>
@@ -468,34 +487,32 @@ export const DiscountCalculator: React.FC<{goBack: () => void}> = ({ goBack }) =
 };
 
 // --- 6. Email Validator ---
-export const EmailValidator: React.FC<{goBack: () => void}> = ({ goBack }) => {
+export const EmailValidator: React.FC<ToolProps> = ({ goBack, lang }) => {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'valid' | 'invalid'>('idle');
+  const t = (key: string) => getTranslation(lang, key);
 
   useEffect(() => {
     if (!email) {
       setStatus('idle');
       return;
     }
-    // Regex for client-side validation
     const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     setStatus(re.test(email) ? 'valid' : 'invalid');
   }, [email]);
 
   return (
     <ToolWrapper 
-      title="Email Validator" 
+      title={t('tool_email')}
       goBack={goBack}
-      onDownload={() => downloadContent('email-validation.txt', `Email: ${email}\nStatus: ${status.toUpperCase()}`)}
+      lang={lang}
+      onDownload={() => downloadContent('email-check.txt', `Email: ${email}\nResult: ${status}`)}
     >
       <ToolInfo 
-        title="Email Validator"
-        desc="Validating email syntax is crucial for data quality. This tool checks if an email address conforms to standard formatting rules using regular expressions (Regex) right in your browser. Note: This checks format only, not existence."
-        steps={[
-          "Type an email address into the input field.",
-          "Watch the border color change: Green for valid, Red for invalid.",
-          "Read the status message below for confirmation."
-        ]}
+        title={t('tool_email')}
+        desc={t('info_desc_email')}
+        steps={t('info_steps_email').split('|')}
+        lang={lang}
       />
       <div className="space-y-4">
         <input
@@ -507,16 +524,9 @@ export const EmailValidator: React.FC<{goBack: () => void}> = ({ goBack }) => {
             ${status === 'valid' ? 'border-green-500 focus:border-green-600' : 
               status === 'invalid' ? 'border-red-500 focus:border-red-600' : 'border-gray-300 focus:border-primary'}`}
         />
-        {status === 'valid' && (
-          <div className="flex items-center text-green-600 gap-2">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-            <span>Valid email format.</span>
-          </div>
-        )}
-        {status === 'invalid' && (
-          <div className="flex items-center text-red-600 gap-2">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-            <span>Invalid email format.</span>
+        {status !== 'idle' && (
+          <div className={`flex items-center gap-2 ${status === 'valid' ? 'text-green-600' : 'text-red-600'}`}>
+            <span className="font-bold">{status === 'valid' ? '✔ Valid' : '✘ Invalid'}</span>
           </div>
         )}
       </div>
@@ -524,9 +534,110 @@ export const EmailValidator: React.FC<{goBack: () => void}> = ({ goBack }) => {
   );
 };
 
-// --- 7. Random Color ---
-export const RandomColor: React.FC<{goBack: () => void}> = ({ goBack }) => {
+// --- 7. Browser Info Display (REVISED) ---
+export const BrowserInfo: React.FC<ToolProps> = ({ goBack, lang }) => {
+  const t = (key: string) => getTranslation(lang, key);
+  const [ip, setIp] = useState<string>('Loading...');
+  const [info, setInfo] = useState({
+    os: '---',
+    browser: '---',
+    screen: '---',
+    lang: '---',
+    timezone: '---'
+  });
+
+  useEffect(() => {
+    // Basic User Agent Parsing
+    const ua = navigator.userAgent;
+    let os = "Unknown OS";
+    if (ua.indexOf("Win") !== -1) os = "Windows";
+    if (ua.indexOf("Mac") !== -1) os = "MacOS";
+    if (ua.indexOf("Linux") !== -1) os = "Linux";
+    if (ua.indexOf("Android") !== -1) os = "Android";
+    if (ua.indexOf("like Mac") !== -1) os = "iOS";
+
+    let browser = "Unknown Browser";
+    if (ua.indexOf("Chrome") !== -1) browser = "Chrome";
+    else if (ua.indexOf("Firefox") !== -1) browser = "Firefox";
+    else if (ua.indexOf("Safari") !== -1) browser = "Safari";
+    else if (ua.indexOf("Edge") !== -1) browser = "Edge";
+
+    // Browser Language
+    const browserLang = navigator.language || 'Unknown';
+
+    // Time Zone Calculation
+    const offsetMin = new Date().getTimezoneOffset();
+    const sign = offsetMin > 0 ? '-' : '+';
+    const abs = Math.abs(offsetMin);
+    const h = String(Math.floor(abs / 60)).padStart(2, '0');
+    const m = String(abs % 60).padStart(2, '0');
+    const tzName = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const tz = `GMT${sign}${h}:${m} (${tzName})`;
+
+    setInfo({
+      os,
+      browser,
+      screen: `${window.screen.width} x ${window.screen.height}`,
+      lang: browserLang,
+      timezone: tz
+    });
+
+    // Fetch IP from a lightweight JSON API
+    fetch('https://api.ipify.org?format=json')
+      .then(res => res.json())
+      .then(data => setIp(data.ip))
+      .catch(() => setIp('Error fetching IP'));
+  }, []);
+
+  const infoString = `OS: ${info.os}\nBrowser: ${info.browser}\nScreen: ${info.screen}\nLanguage: ${info.lang}\nTimeZone: ${info.timezone}\nIP: ${ip}`;
+
+  return (
+    <ToolWrapper 
+      title={t('tool_browser')}
+      goBack={goBack}
+      lang={lang}
+      onDownload={() => downloadContent('system-info.txt', infoString)}
+    >
+      <ToolInfo 
+        title={t('tool_browser')}
+        desc={t('info_desc_browser')}
+        steps={t('info_steps_browser').split('|')}
+        lang={lang}
+      />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-600">
+          <div className="text-sm text-gray-500 dark:text-gray-400">Operating System</div>
+          <div className="text-lg font-bold text-gray-800 dark:text-white">{info.os}</div>
+        </div>
+        <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-600">
+          <div className="text-sm text-gray-500 dark:text-gray-400">Browser</div>
+          <div className="text-lg font-bold text-gray-800 dark:text-white">{info.browser}</div>
+        </div>
+        <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-600">
+          <div className="text-sm text-gray-500 dark:text-gray-400">Screen Resolution</div>
+          <div className="text-lg font-bold text-gray-800 dark:text-white">{info.screen}</div>
+        </div>
+        <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-600">
+          <div className="text-sm text-gray-500 dark:text-gray-400">Public IP Address</div>
+          <div className="text-lg font-bold text-primary">{ip}</div>
+        </div>
+        <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-600">
+          <div className="text-sm text-gray-500 dark:text-gray-400">{t('label_browser_lang')}</div>
+          <div className="text-lg font-bold text-gray-800 dark:text-white">{info.lang}</div>
+        </div>
+        <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-600">
+          <div className="text-sm text-gray-500 dark:text-gray-400">{t('label_timezone')}</div>
+          <div className="text-lg font-bold text-gray-800 dark:text-white">{info.timezone}</div>
+        </div>
+      </div>
+    </ToolWrapper>
+  );
+};
+
+// --- 8. Random Color ---
+export const RandomColor: React.FC<ToolProps> = ({ goBack, lang }) => {
   const [color, setColor] = useState('#3B82F6');
+  const t = (key: string) => getTranslation(lang, key);
 
   const generateColor = () => {
     const randomColor = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
@@ -535,18 +646,16 @@ export const RandomColor: React.FC<{goBack: () => void}> = ({ goBack }) => {
 
   return (
     <ToolWrapper 
-      title="Random Color Generator" 
+      title={t('tool_color')}
       goBack={goBack}
-      onDownload={() => downloadContent('random-color.txt', `Generated Color: ${color}`)}
+      lang={lang}
+      onDownload={() => downloadContent('color.txt', color)}
     >
       <ToolInfo 
-        title="Random Color Generator"
-        desc="Colors trigger emotions and are vital for design. This tool randomly generates Hexadecimal color codes to provide inspiration for your next UI/UX project or artwork."
-        steps={[
-          "View the current random color displayed in the large box.",
-          "Click 'Generate New Color' to create a fresh random color.",
-          "Copy the HEX code displayed in the center (e.g., #FF5733) for your designs."
-        ]}
+        title={t('tool_color')}
+        desc={t('info_desc_color')}
+        steps={t('info_steps_color').split('|')}
+        lang={lang}
       />
       <div className="flex flex-col items-center space-y-6">
         <div 
@@ -561,35 +670,62 @@ export const RandomColor: React.FC<{goBack: () => void}> = ({ goBack }) => {
           onClick={generateColor}
           className="bg-gray-800 dark:bg-white dark:text-gray-900 text-white px-8 py-3 rounded-lg font-bold hover:opacity-90 transition-opacity"
         >
-          Generate New Color
+          {t('generate')}
         </button>
       </div>
     </ToolWrapper>
   );
 };
 
-// --- 8. String Comparator ---
-export const StringComparator: React.FC<{goBack: () => void}> = ({ goBack }) => {
+// --- 9. Reading Progress Demo ---
+export const ReadingProgressDemo: React.FC<ToolProps> = ({ goBack, lang }) => {
+  const t = (key: string) => getTranslation(lang, key);
+  return (
+    <ToolWrapper 
+      title={t('tool_progress')}
+      goBack={goBack}
+      lang={lang}
+    >
+      <ToolInfo 
+        title={t('tool_progress')}
+        desc={t('info_desc_progress')}
+        steps={t('info_steps_progress').split('|')}
+        lang={lang}
+      />
+      <div className="space-y-6">
+         <div className="space-y-4 text-gray-600 dark:text-gray-400">
+           {[...Array(10)].map((_, i) => (
+             <p key={i}>
+               {lang === 'ar' ? 'هذا نص تجريبي لإظهار شريط التقدم.' : 'Sample text to demonstrate scroll progress.'}
+             </p>
+           ))}
+         </div>
+      </div>
+    </ToolWrapper>
+  );
+};
+
+// --- 10. String Comparator ---
+export const StringComparator: React.FC<ToolProps> = ({ goBack, lang }) => {
   const [strA, setStrA] = useState('');
   const [strB, setStrB] = useState('');
+  const t = (key: string) => getTranslation(lang, key);
   
   const isMatch = strA === strB;
   const lengthDiff = Math.abs(strA.length - strB.length);
 
   return (
     <ToolWrapper 
-      title="String Comparator" 
+      title={t('tool_string')}
       goBack={goBack}
-      onDownload={() => downloadContent('string-comparison.txt', `String 1:\n${strA}\n\nString 2:\n${strB}\n\nMatch: ${isMatch ? 'YES' : 'NO'}\nLength Diff: ${lengthDiff}`)}
+      lang={lang}
+      onDownload={() => downloadContent('comparison.txt', `Match: ${isMatch}`)}
     >
       <ToolInfo 
-        title="String Comparator"
-        desc="Comparing two large blocks of text or code to find differences can be tedious and error-prone. This tool compares two strings and tells you if they match exactly or how much they differ in length."
-        steps={[
-          "Paste the first block of text into the left box (Text 1).",
-          "Paste the second block of text into the right box (Text 2).",
-          "Check the status bar below to see if they match exactly (Green) or if there are differences (Red)."
-        ]}
+        title={t('tool_string')}
+        desc={t('info_desc_string')}
+        steps={t('info_steps_string').split('|')}
+        lang={lang}
       />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <textarea
@@ -607,11 +743,11 @@ export const StringComparator: React.FC<{goBack: () => void}> = ({ goBack }) => 
       </div>
       <div className={`p-4 rounded-lg text-center ${isMatch ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
         {isMatch ? (
-          <div className="font-bold">Texts match exactly ✅</div>
+          <div className="font-bold">Match ✅</div>
         ) : (
           <div>
-            <div className="font-bold mb-1">Texts are different ❌</div>
-            <div className="text-sm">Length difference: {lengthDiff} chars</div>
+            <div className="font-bold mb-1">Different ❌</div>
+            <div className="text-sm">Diff: {lengthDiff} chars</div>
           </div>
         )}
       </div>
@@ -619,73 +755,11 @@ export const StringComparator: React.FC<{goBack: () => void}> = ({ goBack }) => 
   );
 };
 
-// --- 9. Dark Mode Demo ---
-export const ThemeDemo: React.FC<{goBack: () => void}> = ({ goBack }) => (
-  <ToolWrapper 
-    title="Light/Dark Mode Toggle" 
-    goBack={goBack}
-    onDownload={() => downloadContent('theme-info.txt', 'SmartTools Theme Demo\n\nThis tool demonstrates persisting user preferences (Dark/Light mode) using LocalStorage.')}
-  >
-    <ToolInfo 
-      title="Light/Dark Mode Toggle"
-      desc="User Interface preferences vary. This tool demonstrates a persistent Dark Mode feature that saves your preference in the browser's local storage, ensuring the site looks the way you want it on every visit."
-      steps={[
-        "Locate the moon/sun icon in the top navigation bar (top right).",
-        "Click the icon to toggle between Light and Dark themes.",
-        "Refresh the page to confirm that your preference is remembered automatically."
-      ]}
-    />
-    <div className="text-center py-8 space-y-4">
-      <p className="text-lg">
-        This tool is integrated into the top navigation bar for easy access at all times.
-      </p>
-      <p className="text-gray-600 dark:text-gray-400">
-        This website automatically saves your preference in your browser.
-      </p>
-      <div className="inline-block p-4 border border-gray-300 dark:border-gray-600 rounded-lg">
-        Look at the top right corner of the screen ↗️
-      </div>
-    </div>
-  </ToolWrapper>
-);
-
-// --- 10. Reading Progress Demo ---
-export const ReadingProgressDemo: React.FC<{goBack: () => void}> = ({ goBack }) => (
-  <ToolWrapper 
-    title="Reading Progress Bar" 
-    goBack={goBack}
-    onDownload={() => downloadContent('progress-info.txt', 'SmartTools Reading Progress Bar Demo\n\nThis tool demonstrates a scroll-linked progress indicator usually found on blogs.')}
-  >
-    <ToolInfo 
-      title="Reading Progress Bar"
-      desc="Long articles can be daunting. A reading progress bar improves user experience by showing readers visually how far they have progressed through the content, encouraging them to finish reading."
-      steps={[
-        "Look at the very top edge of the browser window (the sticky bar).",
-        "Scroll down this page slowly.",
-        "Observe the colored bar expanding from left to right as you scroll, indicating your position on the page."
-      ]}
-    />
-    <div className="space-y-6">
-       <p className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded text-blue-800 dark:text-blue-200">
-         Notice the colored bar at the very top of this page. Scroll down to see it move!
-       </p>
-       <div className="space-y-4 text-gray-600 dark:text-gray-400">
-         {[...Array(15)].map((_, i) => (
-           <p key={i}>
-             This is sample text to fill the page and increase its length so you can experience the progress bar at the top.
-             Progress bars are very useful for long articles so the reader knows how much content is left.
-             Line number {i + 1}.
-           </p>
-         ))}
-       </div>
-    </div>
-  </ToolWrapper>
-);
-
 // --- 11. Basic SEO Checker ---
-export const SeoChecker: React.FC<{goBack: () => void}> = ({ goBack }) => {
+export const SeoChecker: React.FC<ToolProps> = ({ goBack, lang }) => {
   const [title, setTitle] = useState(document.title);
   const [desc, setDesc] = useState('');
+  const t = (key: string) => getTranslation(lang, key);
 
   useEffect(() => {
     const metaDesc = document.querySelector('meta[name="description"]');
@@ -697,18 +771,16 @@ export const SeoChecker: React.FC<{goBack: () => void}> = ({ goBack }) => {
 
   return (
     <ToolWrapper 
-      title="Basic SEO Checker" 
+      title={t('tool_seo')}
       goBack={goBack}
-      onDownload={() => downloadContent('seo-report.txt', `SEO Analysis Report\n\nPage Title: ${title}\nLength: ${title.length} chars (Recommended: 50-60)\n\nMeta Description: ${desc}\nLength: ${desc.length} chars (Recommended: 150-160)`)}
+      lang={lang}
+      onDownload={() => downloadContent('seo.txt', `Title: ${title.length}\nDesc: ${desc.length}`)}
     >
       <ToolInfo 
-        title="Basic SEO Checker"
-        desc="Optimize your web pages for search engines by checking the length of your Title tag and Meta Description against recommended standards. Proper lengths ensure your snippets look good in Google search results."
-        steps={[
-          "Enter your proposed Page Title in the first field.",
-          "Enter your Meta Description in the second field.",
-          "Check the character counts and color indicators (Green implies optimal length, Orange implies improvement needed)."
-        ]}
+        title={t('tool_seo')}
+        desc={t('info_desc_seo')}
+        steps={t('info_steps_seo').split('|')}
+        lang={lang}
       />
       <div className="space-y-6">
         <div>
@@ -720,8 +792,8 @@ export const SeoChecker: React.FC<{goBack: () => void}> = ({ goBack }) => {
             className="w-full p-3 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
           />
           <div className="flex justify-between mt-1 text-sm">
-            <span className={titleColor}>{title.length} Characters</span>
-            <span className="text-gray-500">Recommended: 50-60</span>
+            <span className={titleColor}>{title.length} Chars</span>
+            <span className="text-gray-500">Target: 50-60</span>
           </div>
         </div>
         <div>
@@ -733,8 +805,8 @@ export const SeoChecker: React.FC<{goBack: () => void}> = ({ goBack }) => {
             className="w-full p-3 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
           />
           <div className="flex justify-between mt-1 text-sm">
-            <span className={descColor}>{desc.length} Characters</span>
-            <span className="text-gray-500">Recommended: 150-160</span>
+            <span className={descColor}>{desc.length} Chars</span>
+            <span className="text-gray-500">Target: 150-160</span>
           </div>
         </div>
       </div>
@@ -743,9 +815,10 @@ export const SeoChecker: React.FC<{goBack: () => void}> = ({ goBack }) => {
 };
 
 // --- 12. Base64 Encoder/Decoder ---
-export const Base64Converter: React.FC<{goBack: () => void}> = ({ goBack }) => {
+export const Base64Converter: React.FC<ToolProps> = ({ goBack, lang }) => {
   const [text, setText] = useState('');
   const [base64, setBase64] = useState('');
+  const t = (key: string) => getTranslation(lang, key);
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const val = e.target.value;
@@ -753,7 +826,7 @@ export const Base64Converter: React.FC<{goBack: () => void}> = ({ goBack }) => {
     try {
       setBase64(btoa(unescape(encodeURIComponent(val))));
     } catch {
-      setBase64('Invalid input for Base64 encoding');
+      setBase64('Error');
     }
   };
 
@@ -763,41 +836,38 @@ export const Base64Converter: React.FC<{goBack: () => void}> = ({ goBack }) => {
     try {
       setText(decodeURIComponent(escape(window.atob(val))));
     } catch {
-      setText('Invalid Base64 string');
+      setText('Error');
     }
   };
 
   return (
     <ToolWrapper 
-      title="Base64 Encoder/Decoder" 
+      title={t('tool_base64')}
       goBack={goBack}
-      onDownload={() => downloadContent('base64-result.txt', `Plain Text:\n${text}\n\nBase64:\n${base64}`)}
+      lang={lang}
+      onDownload={() => downloadContent('base64.txt', base64)}
     >
       <ToolInfo 
-        title="Base64 Encoder/Decoder"
-        desc="Base64 is a standard for encoding binary data into ASCII characters. Developers use it for data transfer, email attachments, and embedding images directly into HTML/CSS. This tool handles both directions."
-        steps={[
-          "To Encode: Type plain text in the 'Plain Text' box to see the Base64 result instantly.",
-          "To Decode: Paste a Base64 string in the 'Base64 Output' box to see the decoded plain text."
-        ]}
+        title={t('tool_base64')}
+        desc={t('info_desc_base64')}
+        steps={t('info_steps_base64').split('|')}
+        lang={lang}
       />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Plain Text</label>
+          <label className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Text</label>
           <textarea
             className="w-full h-48 p-3 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white font-mono text-sm"
             value={text}
             onChange={handleTextChange}
-            placeholder="Type text here..."
           />
         </div>
         <div>
-          <label className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Base64 Output</label>
+          <label className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Base64</label>
           <textarea
             className="w-full h-48 p-3 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white font-mono text-sm"
             value={base64}
             onChange={handleBase64Change}
-            placeholder="Base64 result..."
           />
         </div>
       </div>
@@ -806,11 +876,12 @@ export const Base64Converter: React.FC<{goBack: () => void}> = ({ goBack }) => {
 };
 
 // --- 13. RGB/HEX Color Converter ---
-export const RgbHexConverter: React.FC<{goBack: () => void}> = ({ goBack }) => {
+export const RgbHexConverter: React.FC<ToolProps> = ({ goBack, lang }) => {
   const [r, setR] = useState(59);
   const [g, setG] = useState(130);
   const [b, setB] = useState(246);
   const [hex, setHex] = useState('#3B82F6');
+  const t = (key: string) => getTranslation(lang, key);
 
   const componentToHex = (c: number) => {
     const hex = c.toString(16);
@@ -847,47 +918,31 @@ export const RgbHexConverter: React.FC<{goBack: () => void}> = ({ goBack }) => {
 
   return (
     <ToolWrapper 
-      title="RGB / HEX Converter" 
+      title={t('tool_rgb')}
       goBack={goBack}
-      onDownload={() => downloadContent('color-code.txt', `HEX: ${hex}\nRGB: (${r}, ${g}, ${b})`)}
+      lang={lang}
+      onDownload={() => downloadContent('color.txt', hex)}
     >
       <ToolInfo 
-        title="RGB / HEX Converter"
-        desc="Web colors are defined in RGB (Red, Green, Blue) or Hexadecimal formats. This converter bridges the gap, allowing designers and developers to easily translate values between these two common formats."
-        steps={[
-          "Enter Red, Green, and Blue values (0-255) to automatically generate the HEX code.",
-          "Or, type a HEX code (e.g., #3B82F6) in the bottom field to populate the RGB fields.",
-          "View the visual color preview block to confirm the color."
-        ]}
+        title={t('tool_rgb')}
+        desc={t('info_desc_rgb')}
+        steps={t('info_steps_rgb').split('|')}
+        lang={lang}
       />
       <div className="flex flex-col md:flex-row gap-8 items-center justify-center">
         <div className="w-32 h-32 rounded-xl shadow-lg border border-gray-200 dark:border-gray-600" style={{backgroundColor: hex}}></div>
-        
         <div className="space-y-4 w-full max-w-md">
           <div className="grid grid-cols-3 gap-4">
-             <div>
-               <label className="block text-xs font-bold text-gray-500">Red (0-255)</label>
-               <input type="number" min="0" max="255" value={r} onChange={e => setR(Number(e.target.value))} className="w-full p-2 border rounded dark:bg-gray-700 dark:text-white" />
-             </div>
-             <div>
-               <label className="block text-xs font-bold text-gray-500">Green (0-255)</label>
-               <input type="number" min="0" max="255" value={g} onChange={e => setG(Number(e.target.value))} className="w-full p-2 border rounded dark:bg-gray-700 dark:text-white" />
-             </div>
-             <div>
-               <label className="block text-xs font-bold text-gray-500">Blue (0-255)</label>
-               <input type="number" min="0" max="255" value={b} onChange={e => setB(Number(e.target.value))} className="w-full p-2 border rounded dark:bg-gray-700 dark:text-white" />
-             </div>
+             <input type="number" min="0" max="255" value={r} onChange={e => setR(Number(e.target.value))} className="w-full p-2 border rounded dark:bg-gray-700 dark:text-white" />
+             <input type="number" min="0" max="255" value={g} onChange={e => setG(Number(e.target.value))} className="w-full p-2 border rounded dark:bg-gray-700 dark:text-white" />
+             <input type="number" min="0" max="255" value={b} onChange={e => setB(Number(e.target.value))} className="w-full p-2 border rounded dark:bg-gray-700 dark:text-white" />
           </div>
-          
-          <div>
-            <label className="block text-xs font-bold text-gray-500 mb-1">HEX Color</label>
-            <input 
-              type="text" 
-              value={hex} 
-              onChange={handleHexChange} 
-              className="w-full p-2 border rounded font-mono uppercase dark:bg-gray-700 dark:text-white"
-            />
-          </div>
+          <input 
+            type="text" 
+            value={hex} 
+            onChange={handleHexChange} 
+            className="w-full p-2 border rounded font-mono uppercase dark:bg-gray-700 dark:text-white"
+          />
         </div>
       </div>
     </ToolWrapper>
@@ -895,10 +950,11 @@ export const RgbHexConverter: React.FC<{goBack: () => void}> = ({ goBack }) => {
 };
 
 // --- 14. Basic QR Code Generator ---
-export const QrCodeGenerator: React.FC<{goBack: () => void}> = ({ goBack }) => {
+export const QrCodeGenerator: React.FC<ToolProps> = ({ goBack, lang }) => {
   const [text, setText] = useState('https://google.com');
   const qrRef = useRef<HTMLDivElement>(null);
   const [libLoaded, setLibLoaded] = useState(false);
+  const t = (key: string) => getTranslation(lang, key);
 
   useEffect(() => {
     const script = document.createElement('script');
@@ -931,30 +987,27 @@ export const QrCodeGenerator: React.FC<{goBack: () => void}> = ({ goBack }) => {
 
   return (
     <ToolWrapper 
-      title="QR Code Generator" 
+      title={t('tool_qr')}
       goBack={goBack}
+      lang={lang}
       onDownload={handleDownload}
     >
       <ToolInfo 
-        title="QR Code Generator"
-        desc="QR Codes bridge the physical and digital worlds. Generate scannable codes for your website URLs, Wi-Fi passwords, or contact cards instantly. This tool runs locally in your browser."
-        steps={[
-          "Type your URL, text, or other data into the input field.",
-          "Wait a brief moment for the library to generate the QR code image.",
-          "Scan the generated image with your phone camera to test it.",
-          "Take a screenshot or save the image to use it."
-        ]}
+        title={t('tool_qr')}
+        desc={t('info_desc_qr')}
+        steps={t('info_steps_qr').split('|')}
+        lang={lang}
       />
       <div className="flex flex-col items-center space-y-6">
         <input 
           type="text" 
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="Enter URL or Text..."
+          placeholder="URL..."
           className="w-full p-3 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
         />
         <div className="p-4 bg-white rounded-lg shadow-sm border border-gray-200 flex justify-center min-h-[160px] min-w-[160px] items-center">
-          {libLoaded ? <div ref={qrRef}></div> : <span className="text-gray-400">Loading Library...</span>}
+          {libLoaded ? <div ref={qrRef}></div> : <span className="text-gray-400">Loading...</span>}
         </div>
       </div>
     </ToolWrapper>
@@ -962,9 +1015,10 @@ export const QrCodeGenerator: React.FC<{goBack: () => void}> = ({ goBack }) => {
 };
 
 // --- 15. Countdown Timer ---
-export const CountdownTimer: React.FC<{goBack: () => void}> = ({ goBack }) => {
+export const CountdownTimer: React.FC<ToolProps> = ({ goBack, lang }) => {
   const [target, setTarget] = useState('');
   const [timeLeft, setTimeLeft] = useState<{d: number, h: number, m: number, s: number} | null>(null);
+  const t = (key: string) => getTranslation(lang, key);
 
   useEffect(() => {
     if (!target) return;
@@ -989,22 +1043,19 @@ export const CountdownTimer: React.FC<{goBack: () => void}> = ({ goBack }) => {
 
   return (
     <ToolWrapper 
-      title="Countdown Timer" 
+      title={t('tool_countdown')}
       goBack={goBack}
-      onDownload={() => downloadContent('countdown-timer.txt', `Countdown Target: ${target}\n\nTime Remaining:\n${timeLeft ? `${timeLeft.d}d ${timeLeft.h}h ${timeLeft.m}m ${timeLeft.s}s` : 'Event has passed'}`)}
+      lang={lang}
+      onDownload={() => downloadContent('timer.txt', target)}
     >
       <ToolInfo 
-        title="Countdown Timer"
-        desc="Anticipation builds excitement. Set a target date and time for an upcoming event, deadline, holiday, or launch, and watch the days, hours, minutes, and seconds tick away in real-time."
-        steps={[
-          "Click the date picker to select a future date and time.",
-          "Watch the Days, Hours, Minutes, and Seconds update automatically.",
-          "Use this to track time remaining until your special event."
-        ]}
+        title={t('tool_countdown')}
+        desc={t('info_desc_countdown')}
+        steps={t('info_steps_countdown').split('|')}
+        lang={lang}
       />
       <div className="space-y-6 text-center">
         <div>
-           <label className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Set Date & Time</label>
            <input 
              type="datetime-local" 
              value={target}
@@ -1014,7 +1065,7 @@ export const CountdownTimer: React.FC<{goBack: () => void}> = ({ goBack }) => {
         </div>
         
         <div className="grid grid-cols-4 gap-2 md:gap-4">
-           {['Days', 'Hours', 'Minutes', 'Seconds'].map((label, i) => {
+           {['D', 'H', 'M', 'S'].map((label, i) => {
              const keys = ['d','h','m','s'] as const;
              const val = timeLeft ? timeLeft[keys[i]] : 0;
              return (
@@ -1031,11 +1082,12 @@ export const CountdownTimer: React.FC<{goBack: () => void}> = ({ goBack }) => {
 };
 
 // --- 16. Basic Image Compressor ---
-export const ImageCompressor: React.FC<{goBack: () => void}> = ({ goBack }) => {
+export const ImageCompressor: React.FC<ToolProps> = ({ goBack, lang }) => {
   const [quality, setQuality] = useState(0.7);
   const [originalSize, setOriginalSize] = useState(0);
   const [compressedSize, setCompressedSize] = useState(0);
   const [preview, setPreview] = useState('');
+  const t = (key: string) => getTranslation(lang, key);
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -1056,7 +1108,6 @@ export const ImageCompressor: React.FC<{goBack: () => void}> = ({ goBack }) => {
         const dataUrl = canvas.toDataURL('image/jpeg', quality);
         setPreview(dataUrl);
         
-        // Estimate size
         const head = 'data:image/jpeg;base64,';
         const size = Math.round((dataUrl.length - head.length) * 3 / 4);
         setCompressedSize(size);
@@ -1067,22 +1118,19 @@ export const ImageCompressor: React.FC<{goBack: () => void}> = ({ goBack }) => {
 
   return (
     <ToolWrapper 
-      title="Basic Image Compressor" 
+      title={t('tool_compress')}
       goBack={goBack}
-      onDownload={preview ? () => downloadImage('compressed-image.jpg', preview) : undefined}
+      lang={lang}
+      onDownload={preview ? () => downloadImage('compressed.jpg', preview) : undefined}
     >
       <ToolInfo 
-        title="Basic Image Compressor"
-        desc="Large images slow down websites and take up storage. This client-side tool uses your browser's Canvas API to reduce image quality and file size safely without uploading your private photos to a remote server."
-        steps={[
-          "Click 'Choose File' to select an image from your device.",
-          "Adjust the 'Quality' slider (lower quality = smaller file size).",
-          "Compare the 'Original' and 'New' file sizes.",
-          "Click 'Download Image' to save the compressed version."
-        ]}
+        title={t('tool_compress')}
+        desc={t('info_desc_compress')}
+        steps={t('info_steps_compress').split('|')}
+        lang={lang}
       />
       <div className="space-y-6">
-        <input type="file" accept="image/*" onChange={handleFile} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 dark:text-gray-300"/>
+        <input type="file" accept="image/*" onChange={handleFile} className="block w-full text-sm text-gray-500 dark:text-gray-300"/>
         
         {preview && (
           <>
@@ -1092,12 +1140,12 @@ export const ImageCompressor: React.FC<{goBack: () => void}> = ({ goBack }) => {
             </div>
             
             <div className="grid grid-cols-2 gap-4 text-sm text-center">
-              <div>Original: {(originalSize/1024).toFixed(2)} KB</div>
+              <div>Orig: {(originalSize/1024).toFixed(2)} KB</div>
               <div className="text-green-600 font-bold">New: {(compressedSize/1024).toFixed(2)} KB</div>
             </div>
 
             <div className="border rounded p-2 overflow-hidden">
-              <img src={preview} alt="Compressed Preview" className="max-h-64 mx-auto" />
+              <img src={preview} alt="Preview" className="max-h-64 mx-auto" />
             </div>
           </>
         )}
@@ -1107,63 +1155,52 @@ export const ImageCompressor: React.FC<{goBack: () => void}> = ({ goBack }) => {
 };
 
 // --- 17. BMI Calculator ---
-export const BmiCalculator: React.FC<{goBack: () => void}> = ({ goBack }) => {
+export const BmiCalculator: React.FC<ToolProps> = ({ goBack, lang }) => {
   const [weight, setWeight] = useState('');
   const [height, setHeight] = useState('');
   const [bmi, setBmi] = useState<number | null>(null);
+  const t = (key: string) => getTranslation(lang, key);
 
   const calculate = () => {
     const w = parseFloat(weight);
-    const h = parseFloat(height) / 100; // cm to m
+    const h = parseFloat(height) / 100;
     if (w && h) {
       setBmi(parseFloat((w / (h * h)).toFixed(1)));
     }
   };
 
-  let category = '';
-  let color = 'text-gray-600';
-  if (bmi) {
-    if (bmi < 18.5) { category = 'Underweight'; color = 'text-blue-500'; }
-    else if (bmi < 25) { category = 'Normal weight'; color = 'text-green-500'; }
-    else if (bmi < 30) { category = 'Overweight'; color = 'text-orange-500'; }
-    else { category = 'Obese'; color = 'text-red-500'; }
-  }
-
   return (
     <ToolWrapper 
-      title="Simple BMI Calculator" 
+      title={t('tool_bmi')}
       goBack={goBack}
-      onDownload={() => downloadContent('bmi-report.txt', `BMI Report\n\nHeight: ${height} cm\nWeight: ${weight} kg\n\nYour BMI: ${bmi}\nCategory: ${category}`)}
+      lang={lang}
+      onDownload={() => downloadContent('bmi.txt', `BMI: ${bmi}`)}
     >
       <ToolInfo 
-        title="Simple BMI Calculator"
-        desc="Body Mass Index (BMI) is a simple screening tool to estimate whether you are at a healthy weight for your height. It is a useful starting point for understanding your general health category."
-        steps={[
-          "Enter your height in centimeters (cm).",
-          "Enter your weight in kilograms (kg).",
-          "Click 'Calculate BMI' to see your numeric score.",
-          "Check your category (Normal, Overweight, etc.) displayed below."
-        ]}
+        title={t('tool_bmi')}
+        desc={t('info_desc_bmi')}
+        steps={t('info_steps_bmi').split('|')}
+        lang={lang}
       />
       <div className="space-y-6 max-w-sm mx-auto">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-bold mb-1 dark:text-white">Height (cm)</label>
+            <label className="block text-sm font-bold mb-1 dark:text-white">cm</label>
             <input type="number" value={height} onChange={e => setHeight(e.target.value)} className="w-full p-3 border rounded-lg dark:bg-gray-700 dark:text-white"/>
           </div>
           <div>
-            <label className="block text-sm font-bold mb-1 dark:text-white">Weight (kg)</label>
+            <label className="block text-sm font-bold mb-1 dark:text-white">kg</label>
             <input type="number" value={weight} onChange={e => setWeight(e.target.value)} className="w-full p-3 border rounded-lg dark:bg-gray-700 dark:text-white"/>
           </div>
         </div>
         
-        <button onClick={calculate} className="w-full bg-primary text-white py-3 rounded-lg font-bold hover:bg-blue-600">Calculate BMI</button>
+        <button onClick={calculate} className="w-full bg-primary text-white py-3 rounded-lg font-bold hover:bg-blue-600">
+          {t('calculate')}
+        </button>
         
         {bmi && (
           <div className="text-center p-6 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
-             <div className="text-sm text-gray-500 dark:text-gray-400">Your BMI</div>
              <div className="text-4xl font-bold text-gray-800 dark:text-white my-2">{bmi}</div>
-             <div className={`text-lg font-bold ${color}`}>{category}</div>
           </div>
         )}
       </div>
@@ -1172,37 +1209,35 @@ export const BmiCalculator: React.FC<{goBack: () => void}> = ({ goBack }) => {
 };
 
 // --- 18. Text Cleaner ---
-export const TextCleaner: React.FC<{goBack: () => void}> = ({ goBack }) => {
+export const TextCleaner: React.FC<ToolProps> = ({ goBack, lang }) => {
   const [text, setText] = useState('');
+  const t = (key: string) => getTranslation(lang, key);
 
   const cleanSpaces = () => setText(text.replace(/\s+/g, ' ').trim());
   const cleanLines = () => setText(text.replace(/^\s*[\r\n]/gm, ''));
 
   return (
     <ToolWrapper 
-      title="Text Cleaner" 
+      title={t('tool_cleaner')}
       goBack={goBack}
-      onDownload={() => downloadContent('cleaned-text.txt', text)}
+      lang={lang}
+      onDownload={() => downloadContent('clean.txt', text)}
     >
       <ToolInfo 
-        title="Text Cleaner"
-        desc="Formatting issues often occur when copying text from PDFs or websites. This tool cleans up messy spacing, accidental double spaces, and extra empty lines to make your text neat and ready for use."
-        steps={[
-          "Paste your messy text into the large text area.",
-          "Click 'Remove Double Spaces' to normalize spacing between words.",
-          "Click 'Remove Empty Lines' to compact the text and remove blank paragraphs."
-        ]}
+        title={t('tool_cleaner')}
+        desc={t('info_desc_cleaner')}
+        steps={t('info_steps_cleaner').split('|')}
+        lang={lang}
       />
       <div className="space-y-4">
         <textarea 
           value={text}
           onChange={e => setText(e.target.value)}
           className="w-full h-48 p-4 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-          placeholder="Paste messy text here..."
         ></textarea>
         <div className="flex gap-4">
-          <button onClick={cleanSpaces} className="flex-1 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white py-2 rounded hover:bg-gray-300 dark:hover:bg-gray-500 transition">Remove Double Spaces</button>
-          <button onClick={cleanLines} className="flex-1 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white py-2 rounded hover:bg-gray-300 dark:hover:bg-gray-500 transition">Remove Empty Lines</button>
+          <button onClick={cleanSpaces} className="flex-1 bg-gray-200 dark:bg-gray-600 py-2 rounded">Spaces</button>
+          <button onClick={cleanLines} className="flex-1 bg-gray-200 dark:bg-gray-600 py-2 rounded">Lines</button>
         </div>
       </div>
     </ToolWrapper>
@@ -1210,52 +1245,82 @@ export const TextCleaner: React.FC<{goBack: () => void}> = ({ goBack }) => {
 };
 
 // --- 19. Time Zone Converter ---
-export const TimeZoneConverter: React.FC<{goBack: () => void}> = ({ goBack }) => {
+export const TimeZoneConverter: React.FC<ToolProps> = ({ goBack, lang }) => {
   const [date, setDate] = useState(new Date());
+  const [selectedZones, setSelectedZones] = useState<string[]>(['UTC', 'America/New_York', 'Europe/London', 'Asia/Tokyo']);
+  const [zoneToAdd, setZoneToAdd] = useState(timeZones[0].zone);
+  const t = (key: string) => getTranslation(lang, key);
 
   useEffect(() => {
     const timer = setInterval(() => setDate(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  const zones = [
-    { name: 'UTC', zone: 'UTC' },
-    { name: 'New York', zone: 'America/New_York' },
-    { name: 'London', zone: 'Europe/London' },
-    { name: 'Dubai', zone: 'Asia/Dubai' },
-    { name: 'Tokyo', zone: 'Asia/Tokyo' },
-    { name: 'Sydney', zone: 'Australia/Sydney' },
-  ];
+  const addZone = () => {
+    if (!selectedZones.includes(zoneToAdd)) {
+      setSelectedZones([...selectedZones, zoneToAdd]);
+    }
+  };
 
-  const generateReport = () => {
-    return zones.map(z => `${z.name}: ${date.toLocaleTimeString('en-US', { timeZone: z.zone })}`).join('\n');
+  const removeZone = (zone: string) => {
+    setSelectedZones(selectedZones.filter(z => z !== zone));
+  };
+
+  const getCityName = (zone: string) => {
+    const found = timeZones.find(tz => tz.zone === zone);
+    if (found) return found.city;
+    return zone.split('/').pop()?.replace('_', ' ') || zone;
   };
 
   return (
     <ToolWrapper 
-      title="Basic Time Zone Converter" 
+      title={t('tool_timezone')}
       goBack={goBack}
-      onDownload={() => downloadContent('world-clock.txt', generateReport())}
+      lang={lang}
+      onDownload={() => downloadContent('time.txt', selectedZones.map(z => `${z}: ${date.toLocaleTimeString('en-US', { timeZone: z })}`).join('\n'))}
     >
       <ToolInfo 
-        title="Basic Time Zone Converter"
-        desc="Working with global teams or scheduling international calls? This tool displays the current local time in major business hubs around the world compared to your device's local time."
-        steps={[
-          "Simply open the tool to view the dashboard.",
-          "Check the live clocks for New York, London, Dubai, Tokyo, and Sydney.",
-          "The clocks update every second automatically to ensure accuracy."
-        ]}
+        title={t('tool_timezone')}
+        desc={t('info_desc_timezone')}
+        steps={t('info_steps_timezone').split('|')}
+        lang={lang}
       />
+      
+      {/* Add Zone Controls */}
+      <div className="flex gap-2 mb-6">
+        <select 
+          value={zoneToAdd} 
+          onChange={(e) => setZoneToAdd(e.target.value)}
+          className="flex-grow p-3 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+        >
+          {timeZones.map((tz) => (
+            <option key={tz.zone} value={tz.zone}>
+              {tz.city}
+            </option>
+          ))}
+        </select>
+        <button 
+          onClick={addZone}
+          className="bg-primary hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-bold"
+        >
+          +
+        </button>
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {zones.map((z) => (
-          <div key={z.name} className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg border border-gray-100 dark:border-gray-600">
-            <div className="text-sm text-gray-500 dark:text-gray-400">{z.name}</div>
+        {selectedZones.map((zone) => (
+          <div key={zone} className="relative bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg border border-gray-100 dark:border-gray-600 group">
+            <button 
+              onClick={() => removeZone(zone)}
+              className="absolute top-2 right-2 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              ×
+            </button>
+            <div className="text-sm text-gray-500 dark:text-gray-400">{getCityName(zone)}</div>
             <div className="text-xl font-mono font-bold text-gray-800 dark:text-white mt-1">
-              {date.toLocaleTimeString('en-US', { timeZone: z.zone })}
+              {date.toLocaleTimeString('en-US', { timeZone: zone })}
             </div>
-            <div className="text-xs text-gray-400 mt-1">
-              {date.toLocaleDateString('en-US', { timeZone: z.zone })}
-            </div>
+             <div className="text-xs text-gray-400 mt-1">{date.toLocaleDateString('en-US', { timeZone: zone })}</div>
           </div>
         ))}
       </div>
@@ -1264,10 +1329,11 @@ export const TimeZoneConverter: React.FC<{goBack: () => void}> = ({ goBack }) =>
 };
 
 // --- 20. Markdown Previewer ---
-export const MarkdownPreviewer: React.FC<{goBack: () => void}> = ({ goBack }) => {
-  const [input, setInput] = useState('# Hello World\n\nType some markdown here.');
+export const MarkdownPreviewer: React.FC<ToolProps> = ({ goBack, lang }) => {
+  const [input, setInput] = useState('# Hello');
   const [html, setHtml] = useState('');
   const [libLoaded, setLibLoaded] = useState(false);
+  const t = (key: string) => getTranslation(lang, key);
 
   useEffect(() => {
     const script = document.createElement('script');
@@ -1287,24 +1353,22 @@ export const MarkdownPreviewer: React.FC<{goBack: () => void}> = ({ goBack }) =>
 
   return (
     <ToolWrapper 
-      title="Markdown Previewer" 
+      title={t('tool_markdown')}
       goBack={goBack}
-      onDownload={() => downloadContent('document.html', `<!DOCTYPE html><html><body>${html}</body></html>`, )}
+      lang={lang}
+      onDownload={() => downloadContent('doc.html', html)}
     >
       <ToolInfo 
-        title="Markdown Previewer"
-        desc="Markdown is a lightweight markup language used by developers and writers to create formatted text using a plain-text editor. This tool allows you to write Markdown and see the rendered HTML output instantly."
-        steps={[
-          "Type Markdown syntax in the left pane (e.g., # Heading, **bold**, - list).",
-          "View the rendered HTML result in the right pane immediately.",
-          "Use this to test your README files or blog posts before publishing."
-        ]}
+        title={t('tool_markdown')}
+        desc={t('info_desc_markdown')}
+        steps={t('info_steps_markdown').split('|')}
+        lang={lang}
       />
-       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-[500px]">
+       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-[400px]">
          <textarea 
            value={input}
            onChange={(e) => setInput(e.target.value)}
-           className="w-full h-full p-4 border rounded-lg bg-gray-50 dark:bg-gray-900 dark:border-gray-700 dark:text-white font-mono text-sm resize-none focus:ring-2 focus:ring-primary"
+           className="w-full h-full p-4 border rounded-lg bg-gray-50 dark:bg-gray-900 dark:border-gray-700 dark:text-white font-mono text-sm resize-none"
          />
          <div 
            className="w-full h-full p-4 border rounded-lg overflow-auto prose dark:prose-invert bg-white dark:bg-gray-800"

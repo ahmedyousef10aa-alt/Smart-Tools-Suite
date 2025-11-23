@@ -5,9 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Smart Tools Suite</title>
     <meta name="description" content="Useful and fast web tools running directly in your browser" />
+    
+    <!-- Theme Color for Mobile Browsers -->
+    <meta name="theme-color" content="#3b82f6">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- Favicon (SVG Data URI) -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='120' fill='%233b82f6'/%3E%3Cpath fill='white' d='M256 128c70.7 0 128 57.3 128 128s-57.3 128-128 128-128-57.3-128-128 57.3-128 128-128m0-40C163.2 88 88 163.2 88 256s75.2 168 168 168 168-75.2 168-168S348.8 88 256 88zM236 46h40v420h-40zM466 236v40H46v-40z'/%3E%3C/svg%3E">
+    
+    <!-- Apple Touch Icon (Same SVG for simplicity, acts as fallback) -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='120' fill='%233b82f6'/%3E%3Cpath fill='white' d='M256 128c70.7 0 128 57.3 128 128s-57.3 128-128 128-128-57.3-128-128 57.3-128 128-128m0-40C163.2 88 88 163.2 88 256s75.2 168 168 168 168-75.2 168-168S348.8 88 256 88zM236 46h40v420h-40zM466 236v40H46v-40z'/%3E%3C/svg%3E">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -16,6 +27,7 @@
           extend: {
             fontFamily: {
               sans: ['Inter', 'sans-serif'],
+              arabic: ['Cairo', 'sans-serif'],
             },
             colors: {
               primary: '#3b82f6',
@@ -28,6 +40,9 @@
     <style>
       body {
         font-family: 'Inter', sans-serif;
+      }
+      body.font-arabic {
+        font-family: 'Cairo', sans-serif;
       }
       /* Custom Scrollbar */
       ::-webkit-scrollbar {

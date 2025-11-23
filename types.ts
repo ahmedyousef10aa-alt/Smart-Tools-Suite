@@ -1,5 +1,7 @@
 import React from 'react';
 
+export type Language = 'en' | 'ar' | 'fr' | 'es' | 'el' | 'pt' | 'de' | 'zh' | 'ja' | 'nl';
+
 export enum ViewState {
   HOME = 'HOME',
   PRIVACY = 'PRIVACY',
@@ -14,7 +16,7 @@ export enum ViewState {
   TOOL_EMAIL = 'TOOL_EMAIL',
   TOOL_COLOR = 'TOOL_COLOR',
   TOOL_STRING = 'TOOL_STRING',
-  TOOL_THEME_DEMO = 'TOOL_THEME_DEMO',
+  TOOL_BROWSER_INFO = 'TOOL_BROWSER_INFO', // Replaced Theme Demo
   TOOL_PROGRESS_DEMO = 'TOOL_PROGRESS_DEMO',
   // New Tools
   TOOL_SEO = 'TOOL_SEO',
@@ -31,7 +33,7 @@ export enum ViewState {
 
 export interface ToolMeta {
   id: ViewState;
-  title: string;
-  description: string;
+  titleKey: string;
+  descriptionKey: string;
   icon: React.ReactNode;
 }
