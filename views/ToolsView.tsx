@@ -965,7 +965,6 @@ export const QrCodeGenerator: React.FC<ToolProps> = ({ goBack, lang }) => {
   }, []);
 
   useEffect(() => {
-    // Reverted to original unsafe call to trigger previous error state per request
     // @ts-ignore
     if (libLoaded && qrRef.current && text) {
       qrRef.current.innerHTML = '';
@@ -1346,7 +1345,6 @@ export const MarkdownPreviewer: React.FC<ToolProps> = ({ goBack, lang }) => {
   }, []);
 
   useEffect(() => {
-    // Reverted to unsafe call to mimic previous state per request
     // @ts-ignore
     if (libLoaded && window.marked) { // or marked
       // @ts-ignore
